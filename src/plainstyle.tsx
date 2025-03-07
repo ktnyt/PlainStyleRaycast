@@ -1,4 +1,5 @@
 import { ActionPanel, Action, Icon, List, Clipboard } from "@raycast/api";
+import { showFailureToast } from "@raycast/utils";
 import { useEffect, useState } from "react";
 import { convert } from "./lib/conversion";
 import { LetterSet } from "./lib/schema";
@@ -17,14 +18,14 @@ import {
   double_struck,
 } from "./lib/sets";
 
-// スタイルの型定義
+// Style type definition
 type Style = {
   name: string;
   letterSet: LetterSet;
   icon: Icon;
 };
 
-// スタイル定義
+// Style definitions
 const STYLES: Style[] = [
   { name: "Bold", letterSet: serif_bold, icon: Icon.Bold },
   { name: "Italic", letterSet: serif_italic, icon: Icon.Italics },
@@ -46,28 +47,45 @@ export default function Command() {
 
   useEffect(() => {
     const fetchClipboard = async () => {
-      const text = await Clipboard.readText();
-      setSearchText(text ?? "");
-      setIsLoading(false);
+      try {
+        const text = await Clipboard.readText();
+        setSearchText(text ?? "");
+      } catch (error) {
+        showFailureToast({
+          title: "Failed to read clipboard",
+          message: error instanceof Error ? error.message : "Unknown error occurred",
+        });
+        setSearchText("");
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchClipboard();
   }, []);
 
   return (
-    <List isLoading={isLoading} filtering={false} searchText={searchText} onSearchTextChange={setSearchText}>
-      {STYLES.map((style) => (
-        <List.Item
-          key={style.name}
-          icon={style.icon}
-          title={convert(searchText, style.letterSet)}
-          subtitle={style.name}
-          actions={
-            <ActionPanel>
-              <Action.CopyToClipboard content={convert(searchText, style.letterSet)} />
-            </ActionPanel>
-          }
-        />
-      ))}
+    <List
+      isLoading={isLoading}
+      filtering={false}
+      searchText={searchText}
+      onSearchTextChange={setSearchText}
+      searchBarPlaceholder="Enter text to style..."
+      navigationTitle="Style Text"
+    >
+      {!isLoading &&
+        STYLES.map((style) => (
+          <List.Item
+            key={style.name}
+            icon={style.icon}
+            title={convert(searchText, style.letterSet)}
+            subtitle={style.name}
+            actions={
+              <ActionPanel>
+                <Action.CopyToClipboard content={convert(searchText, style.letterSet)} />
+              </ActionPanel>
+            }
+          />
+        ))}
     </List>
   );
 }

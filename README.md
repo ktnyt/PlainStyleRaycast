@@ -26,14 +26,14 @@ Transform your text into various Unicode styles instantly. This Raycast extensio
 ## Usage
 
 1. Open Raycast with your shortcut
-2. Type "style" or "plainstyle"
+2. Type "style" or "style text"
 3. Enter your text
 4. Select your desired style from the list
 5. Press Enter to copy the styled text to your clipboard
 
 ## Screenshots
 
-![PlainStyle in action](screenshot.png)
+![PlainStyle in action](metadata/screenshot.png)
 
 ## Contributing
 
